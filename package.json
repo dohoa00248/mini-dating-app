@@ -1,0 +1,28 @@
+{
+  "name": "mini-dating-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node .src/server.js",
+    "dev": "nodemon .src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dohoa00248/mini-dating-app.git"
+  },
+  "author": "Do The Hoa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dohoa00248/mini-dating-app/issues"
+  },
+  "homepage": "https://github.com/dohoa00248/mini-dating-app#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
