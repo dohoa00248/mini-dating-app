@@ -1,4 +1,5 @@
 import connectMongoDB from './mongoose.js';
+
 const connectDB = async () => {
   try {
     await Promise.all[connectMongoDB()];
@@ -7,5 +8,5 @@ const connectDB = async () => {
     console.error(error);
   }
 };
-connectDB();
+
 export default connectDB;
