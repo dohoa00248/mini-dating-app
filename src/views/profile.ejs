@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Profile</title>
+    <style>
+      .message {
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 5px;
+        display: none;
+      }
+      .error {
+        background-color: #ffebee;
+        color: #c62828;
+        border: 1px solid #ef9a9a;
+      }
+      .success {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        border: 1px solid #a5d6a7;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Tạo hồ sơ hẹn hò</h2>
+    <form id="profileForm">
+      <input type="text" name="name" placeholder="Name" required />
+      <br /><br />
+      <input type="number" name="age" placeholder="Age" required />
+      <br /><br />
+      <select name="gender">
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+      </select>
+      <br /><br />
+      <textarea name="bio" placeholder="Short bio"></textarea>
+      <br /><br />
+      <input type="email" name="email" placeholder="Email" required />
+      <br /><br />
+      <button type="submit">Create Profile</button>
+    </form>
+
+    <div id="statusMsg" class="message"></div>
+
+    <script>
+      const profileForm = document.getElementById('profileForm');
+      const statusMsg = document.getElementById('statusMsg');
+
+      profileForm.addEventListener('submit', async (e) => {
+        e.preventDefault(); // Ngăn chặn form tải lại trang
+
+        // 1. Lấy dữ liệu từ các ô nhập liệu
+        const formData = new FormData(profileForm);
+        const data = Object.fromEntries(formData.entries());
+
+        // 2. Reset trạng thái thông báo
+        statusMsg.style.display = 'none';
+        statusMsg.className = 'message';
+
+        try {
+          // 3. Gửi dữ liệu đến Route Node.js bằng Fetch API
+          const response = await fetch('/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+            // Xử lý khi thành công
+            statusMsg.innerText = result.message + ' Đang chuyển hướng...';
+            statusMsg.classList.add('success');
+            statusMsg.style.display = 'block';
+
+            const newId = result.data.id; // Lấy ID từ kết quả trả về của router POST
+
+            // Đợi 2 giây rồi chuyển sang trang danh sách hoặc Discovery
+            setTimeout(() => {
+              window.location.href = '/users/${newId}';
+            }, 2000);
+          } else {
+            // Xử lý khi có lỗi (ví dụ: trùng email)
+            statusMsg.innerText = result.message || 'Đã có lỗi xảy ra!';
+            statusMsg.classList.add('error');
+            statusMsg.style.display = 'block';
+          }
+        } catch (error) {
+          console.error('Lỗi:', error);
+          statusMsg.innerText = 'Không thể kết nối đến máy chủ!';
+          statusMsg.classList.add('error');
+          statusMsg.style.display = 'block';
+        }
+      });
+    </script>
+  </body>
+</html>
