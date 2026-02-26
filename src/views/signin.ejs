@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In</title>
+    <!-- Reset CSS -->
+    <link rel="stylesheet" href="/css/reset.css" />
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/signin.css" />
+  </head>
+  <body>
+    <div class="card shadow-lg p-4 login-card">
+      <div class="text-center mb-4">
+        <h2 class="app-title">💘 Mini Dating</h2>
+        <p class="text-muted">Find Your Perfect Match</p>
+      </div>
+
+      <form id="loginForm">
+        <div class="mb-3">
+          <input
+            type="email"
+            id="email"
+            class="form-control"
+            placeholder="Email"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
+          <input
+            type="password"
+            id="password"
+            class="form-control"
+            placeholder="Password"
+            required
+          />
+        </div>
+
+        <button type="submit" class="btn btn-love w-100 text-white">
+          Sign In
+        </button>
+      </form>
+
+      <div
+        id="errorMessage"
+        class="text-danger text-center mt-3"
+        style="display: none"
+      ></div>
+      <div class="text-center">
+        <span class="text-muted">Don't have an account?</span>
+        <a
+          href="/auth/signup"
+          class="fw-bold text-decoration-none"
+          style="color: #ff4e8d"
+        >
+          Sign up
+        </a>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById('loginForm')
+        .addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          const email = document.getElementById('email').value;
+          const password = document.getElementById('password').value;
+          const errorDiv = document.getElementById('errorMessage');
+
+          try {
+            const response = await fetch('/auth/signin', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password }),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              window.location.href = result.data.redirectTo;
+            } else {
+              errorDiv.textContent = result.message;
+              errorDiv.style.display = 'block';
+            }
+          } catch (error) {
+            console.error(error);
+            alert('Something went wrong. Please try again.');
+          }
+        });
+    </script>
+  </body>
+</html>

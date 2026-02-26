@@ -1,0 +1,27 @@
+body {
+  background: linear-gradient(135deg, #ff4e8d, #ff9a9e);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.signup-card {
+  width: 100%;
+  max-width: 450px;
+  border-radius: 20px;
+}
+
+.btn-love {
+  background-color: #ff4e8d;
+  border: none;
+}
+
+.btn-love:hover {
+  background-color: #e8437a;
+}
+
+.app-title {
+  font-weight: bold;
+  color: #ff4e8d;
+}

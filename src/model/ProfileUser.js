@@ -28,6 +28,8 @@ const profileUserSchema = new mongoose.Schema(
       lowercase: true,
       match: [/^\S+@\S+\.\S+$/],
     },
+    password: { type: String, required: true },
+    role: { type: Number, default: 2 },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ProfileUser' }],
     matches: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ProfileUser' }],
   },

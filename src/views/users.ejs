@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Discover People</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+ <!-- Reset CSS -->
+    <link rel="stylesheet" href="/css/reset.css" />
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/users.css" />
+</head>
+
+<body>
+
+<div class="container py-5">
+  <div class="main-container">
+
+    <!-- Logged In User Info -->
+    <div class="user-info-box mb-4">
+      <h4 class="mb-3">👤 Your Profile</h4>
+      <p class="mb-1"><strong>Name:</strong> <%= newUser.name %></p>
+      <p class="mb-1"><strong>Age:</strong> <%= newUser.age %></p>
+      <p class="mb-1"><strong>Gender:</strong> <%= newUser.gender %></p>
+      <p class="mb-0"><strong>Email:</strong> <%= newUser.email %></p>
+    </div>
+
+    <!-- Discover Section -->
+    <h4 class="mb-4 text-center">🔥 Discover People</h4>
+
+    <div class="row">
+
+      <% users.forEach(function(user) { %>
+
+        <% const isLiked = newUser.likes.includes(user._id.toString()); %>
+
+        <div class="col-md-4 mb-4">
+          <div class="card profile-card p-4 text-center">
+
+            <h5 class="fw-bold"><%= user.name %>, <%= user.age %></h5>
+            <p class="text-muted"><%= user.bio || "No bio available" %></p>
+
+            <button 
+              class="btn btn-outline-danger like-btn <%= isLiked ? 'liked' : '' %>"
+              onclick="toggleLike('<%= user._id %>', this)">
+              <%= isLiked ? 'Liked ❤️' : 'Like 💖' %>
+            </button>
+
+          </div>
+        </div>
+
+      <% }) %>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- Match Popup -->
+<div id="matchNotice" class="match-notification">
+  💘 IT'S A MATCH! You both like each other!
+</div>
+
+<script>
+  const myId = "<%= newUser._id %>";
+
+  async function toggleLike(targetId, button) {
+    try {
+      const res = await fetch(`/users/${targetId}/toggle-like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ myId })
+      });
+
+      const result = await res.json();
+
+      if (!result.success) {
+        alert("Something went wrong.");
+        return;
+      }
+
+      if (result.action === 'liked') {
+        button.classList.add('liked');
+        button.innerText = "Liked ❤️";
+      } else {
+        button.classList.remove('liked');
+        button.innerText = "Like 💖";
+      }
+
+      if (result.isMatch) {
+        const notice = document.getElementById('matchNotice');
+        notice.style.display = 'block';
+
+        setTimeout(() => {
+          notice.style.display = 'none';
+        }, 3000);
+      }
+
+    } catch (err) {
+      console.error(err);
+      alert("Server error.");
+    }
+  }
+</script>
+
+</body>
+</html>

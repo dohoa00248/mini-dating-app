@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- Reset CSS -->
+    <link rel="stylesheet" href="/css/reset.css" />
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/signup.css" />
+  </head>
+  <body>
+    <div class="card shadow-lg p-4 signup-card">
+      <div class="text-center mb-4">
+        <h2 class="app-title">💘 Mini Dating</h2>
+        <p class="text-muted">Create Your Profile</p>
+      </div>
+
+      <form id="signupForm">
+        <div class="mb-3">
+          <input
+            type="text"
+            id="name"
+            class="form-control"
+            placeholder="Full Name"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
+          <input
+            type="number"
+            id="age"
+            class="form-control"
+            placeholder="Age"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
+          <select id="gender" class="form-select" required>
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <textarea
+            id="bio"
+            class="form-control"
+            placeholder="Short bio..."
+            rows="2"
+          ></textarea>
+        </div>
+
+        <div class="mb-3">
+          <input
+            type="email"
+            id="email"
+            class="form-control"
+            placeholder="Email"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
+          <input
+            type="password"
+            id="password"
+            class="form-control"
+            placeholder="Password"
+            required
+          />
+        </div>
+
+        <button type="submit" class="btn btn-love w-100 text-white">
+          Sign Up
+        </button>
+      </form>
+
+      <div
+        id="errorMessage"
+        class="text-danger text-center mt-3"
+        style="display: none"
+      ></div>
+
+      <div class="text-center mt-3">
+        <span class="text-muted">Already have an account?</span>
+        <a
+          href="/auth/signin"
+          class="fw-bold text-decoration-none"
+          style="color: #ff4e8d"
+        >
+          Sign in
+        </a>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById('signupForm')
+        .addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          const data = {
+            name: document.getElementById('name').value,
+            age: document.getElementById('age').value,
+            gender: document.getElementById('gender').value,
+            bio: document.getElementById('bio').value,
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value,
+          };
+
+          const errorDiv = document.getElementById('errorMessage');
+
+          try {
+            const response = await fetch('/auth/signup', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              window.location.href = '/auth/signin';
+            } else {
+              errorDiv.textContent = result.message;
+              errorDiv.style.display = 'block';
+            }
+          } catch (err) {
+            errorDiv.textContent = 'Something went wrong';
+            errorDiv.style.display = 'block';
+          }
+        });
+    </script>
+  </body>
+</html>
