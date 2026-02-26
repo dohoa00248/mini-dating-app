@@ -8,7 +8,7 @@ HeartSync is a functional dating application prototype designed to demonstrate c
 
 The application follows the **MVC (Model-View-Controller)** design pattern to ensure clear separation of concerns:
 
-- **Models:** Managed via Mongoose to enforce data structure and validation (User, Match, Availability).
+- **Models:** Managed via Mongoose to enforce data structure and validation (User, Availability).
 - **Views:** Server-side rendered (SSR) using EJS for fast performance and dynamic content delivery.
 - **Routes:** Decoupled into modular domains (`auth.js`, `admin.js`, `index.js`, `matches.js`, `users.js`) for better maintainability.
 - **Middleware:** Centralized handlers for session security, body parsing, and static asset serving.
@@ -24,6 +24,36 @@ Unlike client-side storage, this project implements a robust **Backend-Database 
 - **Security:** Passwords are protected using **Bcrypt** hashing.
 
 ---
+
+## 🛠 Installation & Setup
+
+To run this project locally, follow these steps:
+
+1. **Clone the repository:**
+   ```bash
+   git clone <your-repository-url>
+   cd mini-dating-app
+   ```
+2. **Install dependencies:**
+   npm install
+3. **Environment Configuration: Create a .env file in the root directory and add:**
+
+# Server Configuration
+
+PORT=3000
+NODE_ENV=development
+
+# MongoDB Configuration
+
+# Local: mongodb://localhost:27017/db_name
+
+# Mongodb Atlas: mongodb+srv://<user>:<password>@cluster.mongodb.net/db_name
+
+# DB_MONGODB_URI=your_mongodb_connection_string_here
+
+4. **Start the application:**
+   Development mode: npm run dev
+   Production mode: npm start
 
 ## 🧠 Core Logic & Implementation Status
 
