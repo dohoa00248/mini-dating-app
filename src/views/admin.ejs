@@ -1,117 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
-    <!-- Reset CSS -->
-    <link rel="stylesheet" href="/css/reset.css" />
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+  <!-- Reset CSS -->
+  <link rel="stylesheet" href="/css/reset.css" />
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/admin.css" />
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.min.css" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/admin.css" />
 </head>
+
 <body>
-    <div class="container py-5">
-      <div class="admin-header d-flex justify-content-between align-items-center">
-          <h1 class="h3 mb-0 text-primary fw-bold">Admin Dashboard</h1>
-          <span class="badge bg-info text-dark">System Status: Online</span>
-      </div>
+  <div class="container py-5">
 
-      <div class="row g-4">
-          <div class="col-lg-4">
-              <div class="card shadow-sm">
-                  <div class="card-body p-4">
-                      <h5 class="card-title mb-4 fw-bold">Add New Profile</h5>
-                      <form id="adminAddForm">
-                          <div class="mb-3">
-                              <label class="form-label small fw-semibold text-muted">Full Name</label>
-                              <input type="text" name="name" class="form-control" placeholder="Enter name" required />
-                          </div>
-                          <div class="row">
-                              <div class="col-md-6 mb-3">
-                                  <label class="form-label small fw-semibold text-muted">Age</label>
-                                  <input type="number" name="age" class="form-control" placeholder="Age" required />
-                              </div>
-                              <div class="col-md-6 mb-3">
-                                  <label class="form-label small fw-semibold text-muted">Gender</label>
-                                  <select name="gender" class="form-select">
-                                      <option value="Male">Male</option>
-                                      <option value="Female">Female</option>
-                                  </select>
-                              </div>
-                          </div>
-                          <div class="mb-3">
-                              <label class="form-label small fw-semibold text-muted">Email Address</label>
-                              <input type="email" name="email" class="form-control" placeholder="name@company.com" required />
-                          </div>
-                          <div class="mb-4">
-                              <label class="form-label small fw-semibold text-muted">Bio</label>
-                              <textarea name="bio" class="form-control" rows="3" placeholder="Short description..."></textarea>
-                          </div>
-                          <button type="submit" class="btn btn-primary w-100 shadow-sm">Create Profile</button>
-                      </form>
-                  </div>
-              </div>
-          </div>
-
-          <div class="col-lg-8">
-              <div class="card">
-                  <div class="card-body p-0">
-                      <div class="p-4 d-flex justify-content-between align-items-center border-bottom">
-                          <h5 class="mb-0 fw-bold">User Management</h5>
-                          <span class="badge rounded-pill bg-primary"><%= users.length %> Total Users</span>
-                      </div>
-                      
-                      <div class="table-responsive">
-                          <table class="table table-hover align-middle mb-0">
-                              <thead>
-                                  <tr>
-                                      <th class="ps-4">Name</th>
-                                      <th>Age/Gender</th>
-                                      <th>Email</th>
-                                      <th>Joined Date</th>
-                                      <th class="text-center">Action</th>
-                                  </tr>
-                              </thead>
-                              <tbody>
-                                  <% if (users && users.length > 0) { %>
-                                      <% users.forEach(user => { %>
-                                          <tr>
-                                              <td class="ps-4">
-                                                  <div class="fw-bold text-dark"><%= user.name %></div>
-                                              </td>
-                                              <td>
-                                                  <span class="text-muted"><%= user.age %> yrs / <%= user.gender %></span>
-                                              </td>
-                                              <td><code class="text-primary"><%= user.email %></code></td>
-                                              <td><%= user.createdAt.toLocaleDateString() %></td>
-                                              <td class="text-center">
-                                                  <button class="btn btn-sm btn-outline-danger">Edit</button>
-                                                  <button class="btn btn-sm btn-outline-danger">Delete</button>
-                                              </td>
-                                          </tr>
-                                      <% }) %>
-                                  <% } else { %>
-                                      <tr>
-                                          <td colspan="5" class="text-center py-5 text-muted">
-                                              <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="50" class="mb-3 opacity-50"><br>
-                                              No users found in the database.
-                                          </td>
-                                      </tr>
-                                  <% } %>
-                              </tbody>
-                          </table>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
+    <!-- Header -->
+    <div class="admin-header d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3 mb-0 text-primary fw-bold">Admin Dashboard</h1>
+      <span class="badge bg-info text-dark">System Status: Online</span>
     </div>
 
-    <!-- JS -->
-    <script src="/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/admin.js"></script>
+    <div class="row g-4">
+
+      <!-- LEFT COLUMN - ADD USER -->
+      <div class="col-lg-4">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+
+            <h5 class="card-title mb-4 fw-bold">Add New Profile</h5>
+
+            <form id="adminAddForm" method="POST" action="/api/v1/admin/users">
+
+              <div class="mb-3">
+                <label class="form-label small fw-semibold text-muted">Full Name</label>
+                <input type="text" name="name" class="form-control" placeholder="Enter name" required />
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label small fw-semibold text-muted">Age</label>
+                  <input type="number" name="age" class="form-control" required />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label class="form-label small fw-semibold text-muted">Gender</label>
+                  <select name="gender" class="form-select">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small fw-semibold text-muted">Email Address</label>
+                <input type="email" name="email" class="form-control" required />
+              </div>
+
+              <div class="mb-4">
+                <label class="form-label small fw-semibold text-muted">Bio</label>
+                <textarea name="bio" class="form-control" rows="3"></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100 shadow-sm">
+                Create Profile
+              </button>
+
+            </form>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN - USER TABLE -->
+      <div class="col-lg-8">
+        <div class="card shadow-sm">
+          <div class="card-body p-0">
+
+            <!-- Table Header -->
+            <div class="p-4 d-flex justify-content-between align-items-center border-bottom">
+              <h5 class="mb-0 fw-bold">User Management</h5>
+              <span class="badge rounded-pill bg-primary">
+                <%= users.length %> Total Users
+              </span>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th class="ps-4">Name</th>
+                    <th>Age / Gender</th>
+                    <th>Email</th>
+                    <th class="text-center">Likes</th>
+                    <th class="text-center">Matches</th>
+                    <th>Joined Date</th>
+                    <th class="text-center">Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <% if (users && users.length > 0) { %>
+                    <% users.forEach(user => { %>
+
+                      <tr>
+                        <td class="ps-4 fw-bold text-dark">
+                          <%= user.name %>
+                        </td>
+
+                        <td class="text-muted">
+                          <%= user.age %> yrs / <%= user.gender %>
+                        </td>
+
+                        <td>
+                          <code class="text-primary">
+                            <%= user.email %>
+                          </code>
+                        </td>
+
+                        <td class="text-center">
+                          <span class="badge bg-light text-danger border">
+                            ❤️ <%= user.likes ? user.likes.length : 0 %>
+                          </span>
+                        </td>
+
+                        <td class="text-center">
+                          <span class="badge bg-success">
+                            🔥 <%= user.matches ? user.matches.length : 0 %>
+                          </span>
+                        </td>
+
+                        <td>
+                          <%= new Date(user.createdAt).toLocaleDateString() %>
+                        </td>
+
+                        <td class="text-center">
+                          <button 
+                            class="btn btn-sm btn-outline-secondary view-likes-btn"
+                            data-id="<%= user._id %>">
+                            👀 View Likes
+                          </button>
+
+                          <button 
+                            class="btn btn-sm btn-outline-primary edit-btn"
+                            data-id="<%= user._id %>">
+                            ✏️ Edit
+                          </button>
+
+                          <button 
+                            class="btn btn-sm btn-outline-danger delete-btn"
+                            data-id="<%= user._id %>">
+                            🗑 Delete
+                          </button>
+                        </td>
+                      </tr>
+
+                    <% }) %>
+                  <% } else { %>
+
+                    <tr>
+                      <td colspan="7" class="text-center py-5 text-muted">
+                        No users found in the database.
+                      </td>
+                    </tr>
+
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  
+  <!-- Likes Modal -->
+  <div class="modal fade" id="likesModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title">Liked Users</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+
+          <!-- Loading -->
+          <div id="likesLoading" class="text-center py-3 d-none">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-2">Loading...</p>
+          </div>
+
+          <!-- Empty -->
+          <div id="likesEmpty" class="text-center py-3 text-muted d-none">
+            This user hasn't liked anyone yet.
+          </div>
+
+          <!-- List -->
+          <div class="list-group d-none" id="likesList"></div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script src="/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/admin.js"></script>
+
 </body>
 </html>

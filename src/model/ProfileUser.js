@@ -28,6 +28,8 @@ const profileUserSchema = new mongoose.Schema(
       lowercase: true,
       match: [/^\S+@\S+\.\S+$/],
     },
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ProfileUser' }],
+    matches: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ProfileUser' }],
   },
   { timestamps: true },
 );
