@@ -2,110 +2,186 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Discover People</title>
+  <title>Discover</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
- <!-- Reset CSS -->
-    <link rel="stylesheet" href="/css/reset.css" />
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="/css/bootstrap.min.css" />
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/users.css" />
+  <link rel="stylesheet" href="/css/reset.css" />
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/users.css">
 </head>
 
-<body>
+<body class="bg-light">
 
-<div class="container py-5">
-  <div class="main-container">
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">DatingApp</a>
 
-    <!-- Logged In User Info -->
-    <div class="user-info-box mb-4">
-      <h4 class="mb-3">👤 Your Profile</h4>
-      <p class="mb-1"><strong>Name:</strong> <%= newUser.name %></p>
-      <p class="mb-1"><strong>Age:</strong> <%= newUser.age %></p>
-      <p class="mb-1"><strong>Gender:</strong> <%= newUser.gender %></p>
-      <p class="mb-0"><strong>Email:</strong> <%= newUser.email %></p>
+      <div class="ms-auto d-flex align-items-center gap-3">
+        <span class="text-white small">
+          Welcome, <%= newUser.name %>
+        </span>
+        <button 
+          class="btn btn-outline-light btn-sm"
+          onclick="loadLikes()">
+          ❤️ View Likes
+        </button>
+        <button 
+          class="btn btn-warning btn-sm"
+          onclick="loadMatches()">
+          💘 View Matches
+        </button>
+      </div>
     </div>
+  </nav>
 
-    <!-- Discover Section -->
-    <h4 class="mb-4 text-center">🔥 Discover People</h4>
+  <!-- HEADER -->
+  <section class="py-5 text-center bg-white border-bottom">
+    <div class="container">
+      <h2 class="fw-bold">Discover People</h2>
+      <p class="text-muted">Find your perfect match today</p>
+    </div>
+  </section>
 
-    <div class="row">
+  <!-- FILTER -->
+  <section class="py-4 bg-white">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <select class="form-select">
+            <option selected>Filter by gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- USERS GRID -->
+  <section class="py-5">
+    <div class="container">
+      <div class="row g-4">
 
       <% users.forEach(function(user) { %>
 
-        <% const isLiked = newUser.likes.includes(user._id.toString()); %>
+        <% const isMatch = newUser.matches && newUser.matches.includes(user._id.toString()); %>
+        <% const isLiked = newUser.likes && newUser.likes.includes(user._id.toString()); %>
 
-        <div class="col-md-4 mb-4">
-          <div class="card profile-card p-4 text-center">
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="card user-card shadow-sm h-100" data-user-id="<%= user._id%>">
 
-            <h5 class="fw-bold"><%= user.name %>, <%= user.age %></h5>
-            <p class="text-muted"><%= user.bio || "No bio available" %></p>
+            <% if (isMatch) { %>
+              <div class="match-label">💘 It’s a Match</div>
+            <% } %>
 
-            <button 
-              class="btn btn-outline-danger like-btn <%= isLiked ? 'liked' : '' %>"
-              onclick="toggleLike('<%= user._id %>', this)">
-              <%= isLiked ? 'Liked ❤️' : 'Like 💖' %>
-            </button>
+            <div class="card-body text-center d-flex flex-column">
 
+              <!-- Avatar -->
+              <div class="avatar mb-3">
+                <% if (user.gender === 'Male') { %> 👨
+                <% } else if (user.gender === 'Female') { %> 👩
+                <% } else { %> 👤 <% } %>
+              </div>
+
+              <!-- Name + Age -->
+              <h5 class="fw-bold">
+                <%= user.name %>, <%= user.age %>
+              </h5>
+
+              <!-- Gender -->
+              <p class="text-muted small mb-2">
+                <%= user.gender %>
+              </p>
+
+              <!-- Bio -->
+              <p class="text-muted small flex-grow-1">
+                <%= user.bio || "No bio yet." %>
+              </p>
+
+              <!-- Like Button -->
+              <button 
+                class="btn <%= isLiked ? 'btn-danger' : 'btn-outline-danger' %> w-100 like-btn"
+                onclick="toggleLike('<%= user._id %>', this)">
+                <%= isLiked ? '❤️ Liked' : '💖 Like' %>
+              </button>
+
+            </div>
           </div>
         </div>
 
       <% }) %>
 
+      </div>
     </div>
+  </section>
 
+  <!-- MATCH POPUP -->
+  <div id="matchPopup" class="match-popup">
+    💘 It's a Match! You both liked each other!
   </div>
-</div>
 
-<!-- Match Popup -->
-<div id="matchNotice" class="match-notification">
-  💘 IT'S A MATCH! You both like each other!
-</div>
+  <!-- LIKES MODAL -->
+  <div class="modal fade" id="likesModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
 
-<script>
-  const myId = "<%= newUser._id %>";
+        <div class="modal-header">
+          <h5 class="modal-title">❤️ People You Liked</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
 
-  async function toggleLike(targetId, button) {
-    try {
-      const res = await fetch(`/users/${targetId}/toggle-like`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ myId })
-      });
+        <div class="modal-body">
 
-      const result = await res.json();
+          <!-- Loading -->
+          <div id="likesLoading" class="text-center d-none">
+            Loading...
+          </div>
 
-      if (!result.success) {
-        alert("Something went wrong.");
-        return;
-      }
+          <!-- Empty -->
+          <div id="likesEmpty" class="text-center text-muted d-none">
+            No likes yet
+          </div>
 
-      if (result.action === 'liked') {
-        button.classList.add('liked');
-        button.innerText = "Liked ❤️";
-      } else {
-        button.classList.remove('liked');
-        button.innerText = "Like 💖";
-      }
+          <!-- List -->
+          <div id="likesList" class="row g-3"></div>
 
-      if (result.isMatch) {
-        const notice = document.getElementById('matchNotice');
-        notice.style.display = 'block';
+        </div>
 
-        setTimeout(() => {
-          notice.style.display = 'none';
-        }, 3000);
-      }
+      </div>
+    </div>
+  </div>
+  <!-- MATCHES MODAL -->
+  <div class="modal fade" id="matchesModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
 
-    } catch (err) {
-      console.error(err);
-      alert("Server error.");
-    }
-  }
-</script>
+        <div class="modal-header">
+          <h5 class="modal-title">💘 Your Matches</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
 
+        <div class="modal-body">
+
+          <!-- Loading -->
+          <div id="matchesLoading" class="text-center d-none">
+            Loading...
+          </div>
+
+          <!-- Empty -->
+          <div id="matchesEmpty" class="text-center text-muted d-none">
+            No matches yet
+          </div>
+
+          <!-- List -->
+          <div id="matchesList" class="row g-3"></div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+<script src="/js/bootstrap.bundle.min.js"></script>
+<script src="/js/users.js"></script>
 </body>
 </html>

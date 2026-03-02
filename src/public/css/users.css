@@ -1,55 +1,51 @@
-body {
-  background: linear-gradient(to right, #ff758c, #ff7eb3);
-  min-height: 100vh;
+/* Avatar */
+.avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff4d6d, #ff758c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: white;
+  margin: 0 auto;
 }
 
-.main-container {
-  background: white;
-  border-radius: 25px;
-  padding: 30px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+/* Card */
+.user-card {
+  border-radius: 18px;
+  transition: 0.3s ease;
+  position: relative;
 }
 
-.profile-card {
+.user-card:hover {
+  transform: translateY(-6px);
+}
+
+/* Match label */
+.match-label {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ff4d6d;
+  color: white;
+  font-size: 12px;
+  padding: 5px 10px;
   border-radius: 20px;
-  transition: 0.3s;
-  border: none;
-}
-
-.profile-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-}
-
-.like-btn {
-  border-radius: 50px;
-  padding: 8px 20px;
-  font-weight: 500;
-}
-
-.like-btn.liked {
-  background: linear-gradient(45deg, #ff416c, #ff4b2b);
-  border: none;
-  color: white;
-}
-
-.match-notification {
-  position: fixed;
-  top: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(45deg, #ff416c, #ff4b2b);
-  color: white;
-  padding: 15px 30px;
-  border-radius: 50px;
   font-weight: bold;
-  z-index: 9999;
-  display: none;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-.user-info-box {
-  background: #f8f9fa;
-  border-radius: 20px;
-  padding: 20px;
+/* Match Popup */
+.match-popup {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: #ff4d6d;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 12px;
+  display: none;
+  font-weight: bold;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
