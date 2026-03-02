@@ -1,6 +1,6 @@
 # HeartSync - Mini Dating App Prototype
 
-HeartSync is a functional dating application prototype designed to demonstrate core mechanics such as profile management, mutual-matching algorithms, and availability coordination. Built with the **MEN Stack** (MongoDB, Express, Node.js).
+HeartSync is a functional dating application prototype designed to demonstrate core mechanics such as profile management, mutual matching algorithms, and availability coordination. The application is built using a Node.js and Express backend, MongoDB for data persistence, and follows the MVC (Model–View–Controller) architectural pattern.
 
 ---
 
@@ -8,9 +8,9 @@ HeartSync is a functional dating application prototype designed to demonstrate c
 
 The application follows the **MVC (Model-View-Controller)** design pattern to ensure clear separation of concerns:
 
-- **Models:** Managed via Mongoose to enforce data structure and validation (User, Availability).
+- **Models:** Managed via Mongoose to enforce data structure and validation (ProfileUser).
 - **Views:** Server-side rendered (SSR) using EJS for fast performance and dynamic content delivery.
-- **Routes:** Decoupled into modular domains (`auth.js`, `admin.js`, `index.js`, `matches.js`, `users.js`) for better maintainability.
+- **Controller/Routes:** Decoupled into modular domains (`auth.js`, `admin.js`, `index.js`, `users.js`) for better maintainability.
 - **Middleware:** Centralized handlers for session security, body parsing, and static asset serving.
 
 ---
@@ -37,19 +37,10 @@ To run this project locally, follow these steps:
 2. **Install dependencies:**
    npm install
 3. **Environment Configuration: Create a .env file in the root directory and add:**
-
-# Server Configuration
-
-PORT=3000
-NODE_ENV=development
-
-# MongoDB Configuration
-
-# Local: mongodb://localhost:27017/db_name
-
-# Mongodb Atlas: mongodb+srv://<user>:<password>@cluster.mongodb.net/db_name
-
-# DB_MONGODB_URI=your_mongodb_connection_string_here
+   PORT=3000
+   NODE_ENV=development
+   SESSION_SECRET=your_secret_key
+   DB_MONGODB_URI=your_mongodb_connection_string
 
 4. **Start the application:**
    Development mode: npm run dev
@@ -92,4 +83,4 @@ I am committed to delivering a high-quality, bug-free prototype. My plan for the
 ---
 
 **Developer:** Do The Hoa  
-**Stack:** Node.js | Express | MongoDB | EJS | Bootstrap 5
+**Stack:** Node.js | Express.js | MongoDB (Atlas) | Mongoose | EJS | Bootstrap 5, express-session | bcrypt.
