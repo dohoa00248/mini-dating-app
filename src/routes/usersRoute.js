@@ -72,54 +72,8 @@ router.get('/likes-detail', async (req, res) => {
   }
 });
 
-// router.get('/matches-detail', async (req, res) => {
-//   try {
-//     // 🔥 Lấy từ session thay vì req.query
-//     const userId = req.session.user._id;
-
-//     // Check session tồn tại
-//     if (!userId) {
-//       return res.status(401).json({
-//         success: false,
-//         message: 'Unauthorized',
-//       });
-//     }
-
-//     // Get current user
-//     const currentUser = await ProfileUser.findById(userId);
-
-//     if (!currentUser) {
-//       return res.status(404).json({
-//         success: false,
-//         message: 'User not found',
-//       });
-//     }
-
-//     // Find mutual likes (matches)
-//     const matches = await ProfileUser.find({
-//       _id: { $in: currentUser.likes },
-//       likes: userId,
-//     });
-
-//     // Return matches
-//     res.status(200).json({
-//       success: true,
-//       message: 'Matches fetched successfully!',
-//       total: matches.length,
-//       data: matches,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       message: 'Internal Server Error',
-//       error: error.message,
-//     });
-//   }
-// });
-
 router.get('/matches-detail', async (req, res) => {
   try {
-    // 🔥 Check session an toàn
     const userId = req.session.user._id;
 
     if (!userId) {
@@ -129,7 +83,6 @@ router.get('/matches-detail', async (req, res) => {
       });
     }
 
-    // 1️⃣ Get current user
     const currentUser = await ProfileUser.findById(userId);
 
     if (!currentUser) {
@@ -139,13 +92,11 @@ router.get('/matches-detail', async (req, res) => {
       });
     }
 
-    // 2️⃣ Find mutual matches (chỉ lấy field cần)
     const matches = await ProfileUser.find({
       _id: { $in: currentUser.likes },
       likes: userId,
     }).select('name age gender bio');
 
-    // 3️⃣ Gắn thêm slot mà user hiện tại đã đề xuất
     const result = await Promise.all(
       matches.map(async (matchUser) => {
         const availability = await Availability.findOne({
@@ -172,7 +123,6 @@ router.get('/matches-detail', async (req, res) => {
       }),
     );
 
-    // 4️⃣ Return sạch sẽ
     res.status(200).json({
       success: true,
       message: 'Matches fetched successfully!',
@@ -188,6 +138,7 @@ router.get('/matches-detail', async (req, res) => {
     });
   }
 });
+
 router.get('/matched-schedules', async (req, res) => {
   try {
     const currentUserId = req.session.user?._id;
@@ -199,7 +150,6 @@ router.get('/matched-schedules', async (req, res) => {
       });
     }
 
-    // Tìm tất cả availability có finalDate
     const availabilities = await Availability.find({
       $or: [{ userA: currentUserId }, { userB: currentUserId }],
       finalDate: { $ne: null },
@@ -235,6 +185,7 @@ router.get('/matched-schedules', async (req, res) => {
     });
   }
 });
+
 router.get('/schedule/:matchUserId', async (req, res) => {
   try {
     const currentUserId = req.session.user?._id;
