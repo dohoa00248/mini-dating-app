@@ -72,12 +72,56 @@ router.get('/likes-detail', async (req, res) => {
   }
 });
 
+// router.get('/matches-detail', async (req, res) => {
+//   try {
+//     // 🔥 Lấy từ session thay vì req.query
+//     const userId = req.session.user._id;
+
+//     // Check session tồn tại
+//     if (!userId) {
+//       return res.status(401).json({
+//         success: false,
+//         message: 'Unauthorized',
+//       });
+//     }
+
+//     // Get current user
+//     const currentUser = await ProfileUser.findById(userId);
+
+//     if (!currentUser) {
+//       return res.status(404).json({
+//         success: false,
+//         message: 'User not found',
+//       });
+//     }
+
+//     // Find mutual likes (matches)
+//     const matches = await ProfileUser.find({
+//       _id: { $in: currentUser.likes },
+//       likes: userId,
+//     });
+
+//     // Return matches
+//     res.status(200).json({
+//       success: true,
+//       message: 'Matches fetched successfully!',
+//       total: matches.length,
+//       data: matches,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: 'Internal Server Error',
+//       error: error.message,
+//     });
+//   }
+// });
+
 router.get('/matches-detail', async (req, res) => {
   try {
-    // 🔥 Lấy từ session thay vì req.query
+    // 🔥 Check session an toàn
     const userId = req.session.user._id;
 
-    // Check session tồn tại
     if (!userId) {
       return res.status(401).json({
         success: false,
@@ -85,7 +129,7 @@ router.get('/matches-detail', async (req, res) => {
       });
     }
 
-    // Get current user
+    // 1️⃣ Get current user
     const currentUser = await ProfileUser.findById(userId);
 
     if (!currentUser) {
@@ -95,24 +139,144 @@ router.get('/matches-detail', async (req, res) => {
       });
     }
 
-    // Find mutual likes (matches)
+    // 2️⃣ Find mutual matches (chỉ lấy field cần)
     const matches = await ProfileUser.find({
       _id: { $in: currentUser.likes },
       likes: userId,
-    });
+    }).select('name age gender bio');
 
-    // Return matches
+    // 3️⃣ Gắn thêm slot mà user hiện tại đã đề xuất
+    const result = await Promise.all(
+      matches.map(async (matchUser) => {
+        const availability = await Availability.findOne({
+          $or: [
+            { userA: userId, userB: matchUser._id },
+            { userA: matchUser._id, userB: userId },
+          ],
+        });
+
+        let myProposedSlots = [];
+
+        if (availability && availability.slots) {
+          myProposedSlots = availability.slots.get(userId.toString()) || [];
+        }
+
+        return {
+          _id: matchUser._id,
+          name: matchUser.name,
+          age: matchUser.age,
+          gender: matchUser.gender,
+          bio: matchUser.bio,
+          myProposedSlots,
+        };
+      }),
+    );
+
+    // 4️⃣ Return sạch sẽ
     res.status(200).json({
       success: true,
       message: 'Matches fetched successfully!',
-      total: matches.length,
-      data: matches,
+      total: result.length,
+      data: result,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       success: false,
       message: 'Internal Server Error',
       error: error.message,
+    });
+  }
+});
+router.get('/matched-schedules', async (req, res) => {
+  try {
+    const currentUserId = req.session.user?._id;
+
+    if (!currentUserId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized',
+      });
+    }
+
+    // Tìm tất cả availability có finalDate
+    const availabilities = await Availability.find({
+      $or: [{ userA: currentUserId }, { userB: currentUserId }],
+      finalDate: { $ne: null },
+    })
+      .populate('userA', 'name age gender bio')
+      .populate('userB', 'name age gender bio');
+
+    const result = availabilities.map((item) => {
+      const isUserA = item.userA._id.toString() === currentUserId.toString();
+
+      const matchedUser = isUserA ? item.userB : item.userA;
+
+      return {
+        matchId: matchedUser._id,
+        name: matchedUser.name,
+        age: matchedUser.age,
+        gender: matchedUser.gender,
+        bio: matchedUser.bio,
+        finalDate: item.finalDate,
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      total: result.length,
+      data: result,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal Server Error',
+    });
+  }
+});
+router.get('/schedule/:matchUserId', async (req, res) => {
+  try {
+    const currentUserId = req.session.user?._id;
+    const { matchUserId } = req.params;
+
+    if (!currentUserId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized',
+      });
+    }
+
+    const availability = await Availability.findOne({
+      $or: [
+        { userA: currentUserId, userB: matchUserId },
+        { userA: matchUserId, userB: currentUserId },
+      ],
+    });
+
+    if (!availability) {
+      return res.status(404).json({
+        success: false,
+        message: 'Availability not found',
+      });
+    }
+
+    if (!availability.finalDate) {
+      return res.status(400).json({
+        success: false,
+        message: 'Schedule not finalized yet',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      finalDate: availability.finalDate,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal Server Error',
     });
   }
 });

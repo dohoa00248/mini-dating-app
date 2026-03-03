@@ -30,6 +30,11 @@
           onclick="loadMatches()">
           💘 View My Matches
         </button>
+        <button 
+  class="btn btn-info btn-sm"
+  onclick="loadSchedules()">
+  📅 View My Schedules
+</button>
       </div>
     </div>
   </nav>
@@ -189,7 +194,24 @@
       </div>
     </div>
   </div>
+<!-- SCHEDULE MODAL -->
+<div class="modal fade" id="scheduleModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content p-4">
+      <h5 class="mb-3">📅 My Confirmed Schedules</h5>
 
+      <div id="scheduleLoading" class="text-center d-none">
+        Loading...
+      </div>
+
+      <div id="scheduleEmpty" class="text-center text-muted d-none">
+        No confirmed schedules yet.
+      </div>
+
+      <div class="row g-3" id="scheduleList"></div>
+    </div>
+  </div>
+</div>
 <script src="/js/bootstrap.bundle.min.js"></script>
 <script src="/js/users.js"></script>
 </body>
