@@ -23,12 +23,12 @@
         <button 
           class="btn btn-outline-light btn-sm"
           onclick="loadLikes()">
-          ❤️ View Likes
+          ❤️ View My Likes
         </button>
         <button 
           class="btn btn-warning btn-sm"
           onclick="loadMatches()">
-          💘 View Matches
+          💘 View My Matches
         </button>
       </div>
     </div>
@@ -38,7 +38,7 @@
   <section class="py-5 text-center bg-white border-bottom">
     <div class="container">
       <h2 class="fw-bold">Discover People</h2>
-      <p class="text-muted">Find your perfect match today</p>
+      <p class="text-muted">Find your perfect match today.</p>
     </div>
   </section>
 
@@ -48,7 +48,7 @@
       <div class="row justify-content-center">
         <div class="col-md-6">
           <select class="form-select">
-            <option selected>Filter by gender</option>
+            <option selected>Filter by Gender</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
           </select>
@@ -64,14 +64,19 @@
 
       <% users.forEach(function(user) { %>
 
-        <% const isMatch = newUser.matches && newUser.matches.includes(user._id.toString()); %>
-        <% const isLiked = newUser.likes && newUser.likes.includes(user._id.toString()); %>
+        <% 
+          const isMatch = newUser.matches &&
+            newUser.matches.some(id => id.toString() === user._id.toString());
+
+          const isLiked = newUser.likes &&
+            newUser.likes.some(id => id.toString() === user._id.toString());
+        %>
 
         <div class="col-12 col-sm-6 col-lg-4">
-          <div class="card user-card shadow-sm h-100" data-user-id="<%= user._id%>">
+          <div class="card user-card shadow-sm h-100" data-user-id="<%= user._id %>">
 
             <% if (isMatch) { %>
-              <div class="match-label">💘 It’s a Match</div>
+              <div class="match-label">💘 It’s a Match!</div>
             <% } %>
 
             <div class="card-body text-center d-flex flex-column">
@@ -95,7 +100,7 @@
 
               <!-- Bio -->
               <p class="text-muted small flex-grow-1">
-                <%= user.bio || "No bio yet." %>
+                <%= user.bio || "No bio available yet." %>
               </p>
 
               <!-- Like Button -->
@@ -104,6 +109,15 @@
                 onclick="toggleLike('<%= user._id %>', this)">
                 <%= isLiked ? '❤️ Liked' : '💖 Like' %>
               </button>
+
+              <!-- Schedule Button -->
+              <% if (isMatch) { %>
+                <button 
+                  class="btn btn-success btn-sm schedule-btn mt-2 w-100"
+                  onclick="window.location.href='/users/<%= user._id %>/availability'">
+                  📅 Suggest a Date
+                </button>
+              <% } %>
 
             </div>
           </div>
@@ -117,7 +131,7 @@
 
   <!-- MATCH POPUP -->
   <div id="matchPopup" class="match-popup">
-    💘 It's a Match! You both liked each other!
+    💘 It's a Match! You both liked each other.
   </div>
 
   <!-- LIKES MODAL -->
@@ -126,23 +140,20 @@
       <div class="modal-content">
 
         <div class="modal-header">
-          <h5 class="modal-title">❤️ People You Liked</h5>
+          <h5 class="modal-title">❤️ People You’ve Liked</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
 
         <div class="modal-body">
 
-          <!-- Loading -->
           <div id="likesLoading" class="text-center d-none">
             Loading...
           </div>
 
-          <!-- Empty -->
           <div id="likesEmpty" class="text-center text-muted d-none">
-            No likes yet
+            You haven’t liked anyone yet.
           </div>
 
-          <!-- List -->
           <div id="likesList" class="row g-3"></div>
 
         </div>
@@ -150,6 +161,7 @@
       </div>
     </div>
   </div>
+
   <!-- MATCHES MODAL -->
   <div class="modal fade" id="matchesModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -162,17 +174,14 @@
 
         <div class="modal-body">
 
-          <!-- Loading -->
           <div id="matchesLoading" class="text-center d-none">
             Loading...
           </div>
 
-          <!-- Empty -->
           <div id="matchesEmpty" class="text-center text-muted d-none">
-            No matches yet
+            You don’t have any matches yet.
           </div>
 
-          <!-- List -->
           <div id="matchesList" class="row g-3"></div>
 
         </div>

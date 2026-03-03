@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Availability</title>
+    <link rel="stylesheet" href="/css/reset.css" />
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/availability.css">
+</head>
+
+<body class="bg-light">
+
+<div class="container py-5">
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+
+      <h3 class="mb-3 text-center">
+        💛 Select Your Availability with 
+        <span class="text-primary"><%= matchedUser.name %></span>
+      </h3>
+
+      <p class="text-muted text-center">
+        Choose available time slots within the <strong>next 3 weeks</strong>.
+      </p>
+
+      <!-- Notification -->
+      <div id="notification" class="alert text-center d-none" role="alert"></div>
+
+      <% if (
+        availability &&
+        availability.finalDate &&
+        availability.finalDate.start
+      ) { %>
+
+        <div class="alert alert-success text-center">
+          <h5>✅ Your date has been scheduled for:</h5>
+          <strong>
+            <%= new Date(availability.finalDate.start).toLocaleString() %>
+          </strong>
+        </div>
+
+      <% } %>
+
+      <% if (
+        !availability ||
+        !availability.finalDate ||
+        !availability.finalDate.start
+      ) { %>
+
+      <form id="availability-form">
+
+        <div id="slot-container">
+
+          <div class="row g-3 mb-3 slot-item">
+
+            <div class="col-md-5">
+              <label class="form-label">Date</label>
+              <input 
+                type="date" 
+                name="date[]" 
+                min="<%= today %>" 
+                max="<%= maxDate %>"
+                class="form-control"
+                required>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Start Time</label>
+              <input type="time" name="from[]" class="form-control" required>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">End Time</label>
+              <input type="time" name="to[]" class="form-control" required>
+            </div>
+
+            <div class="col-md-1 d-flex align-items-end">
+              <button type="button" class="btn btn-outline-danger remove-slot d-none">
+                ✖
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="mb-3">
+          <button type="button" class="btn btn-outline-secondary" id="add-slot">
+            ➕ Add Time Slot
+          </button>
+        </div>
+
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary">
+            Submit Availability
+          </button>
+        </div>
+
+      </form>
+
+      <% } %>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="/js/bootstrap.bundle.min.js"></script>
+<script src="/js/availability.j"></script>
+
+
+</body>
+</html>

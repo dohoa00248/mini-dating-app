@@ -1,181 +1,130 @@
-// ===============================
-// TOGGLE LIKE
-// ===============================
+/* TOGGLE LIKE */
 async function toggleLike(targetId, button) {
   try {
     const res = await fetch(`/users/${targetId}/toggle-like`, {
       method: 'POST',
     });
 
-    const result = await res.json();
+    const { success, action, isMatch } = await res.json();
+    if (!success) return alert('Action failed');
 
-    if (!result.success) {
-      alert('Error occurred');
-      return;
-    }
-
-    // Update button UI
-    if (result.action === 'liked') {
-      button.classList.remove('btn-outline-danger');
-      button.classList.add('btn-danger');
-      button.innerText = '❤️ Liked';
-    } else {
-      button.classList.remove('btn-danger');
-      button.classList.add('btn-outline-danger');
-      button.innerText = '💖 Like';
-    }
+    // 1️⃣ Update like button UI
+    const liked = action === 'liked';
+    button.classList.toggle('btn-danger', liked);
+    button.classList.toggle('btn-outline-danger', !liked);
+    button.textContent = liked ? '❤️ Liked' : '💖 Like';
 
     const card = document.querySelector(`.card[data-user-id="${targetId}"]`);
-
     if (!card) return;
 
-    let matchLabel = card.querySelector('.match-label');
-
-    if (result.isMatch) {
-      if (!matchLabel) {
-        const label = document.createElement('div');
-        label.className = 'match-label';
-        label.innerText = '💘 It’s a Match';
-        card.prepend(label);
-      }
-
-      const popup = document.getElementById('matchPopup');
-      if (popup) {
-        popup.style.display = 'block';
-        setTimeout(() => (popup.style.display = 'none'), 3000);
-      }
-    } else {
-      if (matchLabel) {
-        matchLabel.remove();
-      }
-    }
+    updateMatchUI(card, targetId, isMatch);
   } catch (err) {
     console.error(err);
     alert('Server error');
   }
 }
 
-// ===============================
-// LOAD LIKES
-// ===============================
+/* ======================================================
+   UPDATE MATCH UI (label + schedule button)
+====================================================== */
+function updateMatchUI(card, targetId, isMatch) {
+  const matchLabel = card.querySelector('.match-label');
+  const scheduleBtn = card.querySelector('.schedule-btn');
+
+  if (isMatch) {
+    // Add match label
+    if (!matchLabel) {
+      const label = document.createElement('div');
+      label.className = 'match-label';
+      label.textContent = '💘 It’s a Match';
+      card.prepend(label);
+    }
+
+    // Add schedule button
+    if (!scheduleBtn) {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-success btn-sm schedule-btn mt-2 w-100';
+      btn.textContent = '📅 Suggest a Date';
+      btn.onclick = () =>
+        (window.location.href = `/users/${targetId}/availability`);
+
+      card.querySelector('.card-body').appendChild(btn);
+    }
+
+    showMatchPopup();
+  } else {
+    if (matchLabel) matchLabel.remove();
+    if (scheduleBtn) scheduleBtn.remove();
+  }
+}
+
+/* ======================================================
+   MATCH POPUP EFFECT
+====================================================== */
+function showMatchPopup() {
+  const popup = document.getElementById('matchPopup');
+  if (!popup) return;
+
+  popup.classList.add('show');
+  setTimeout(() => popup.classList.remove('show'), 3000);
+}
+
+/* ======================================================
+   LOAD LIKES (Modal)
+====================================================== */
 async function loadLikes() {
-  const modalEl = document.getElementById('likesModal');
-  const modal = new bootstrap.Modal(modalEl);
-
-  const loading = document.getElementById('likesLoading');
-  const empty = document.getElementById('likesEmpty');
-  const list = document.getElementById('likesList');
-
-  list.innerHTML = '';
-  empty.classList.add('d-none');
-  loading.classList.remove('d-none');
-
-  modal.show();
-
-  try {
-    const res = await fetch('/users/likes-detail');
-    const result = await res.json();
-
-    loading.classList.add('d-none');
-
-    if (!result.success || result.total === 0) {
-      empty.classList.remove('d-none');
-      return;
-    }
-
-    result.data.forEach((user) => {
-      const col = document.createElement('div');
-      col.className = 'col-md-4';
-
-      const card = document.createElement('div');
-      card.className = 'card shadow-sm text-center p-3 h-100';
-
-      const avatar = document.createElement('div');
-      avatar.style.fontSize = '40px';
-      avatar.textContent =
-        user.gender === 'Male' ? '👨' : user.gender === 'Female' ? '👩' : '👤';
-
-      const name = document.createElement('h6');
-      name.className = 'fw-bold mt-2';
-      name.textContent = `${user.name}, ${user.age}`;
-
-      const bio = document.createElement('p');
-      bio.className = 'small text-muted';
-      bio.textContent = user.bio || 'No bio';
-
-      card.appendChild(avatar);
-      card.appendChild(name);
-      card.appendChild(bio);
-      col.appendChild(card);
-      list.appendChild(col);
-    });
-  } catch (err) {
-    console.error(err);
-    loading.classList.add('d-none');
-    empty.classList.remove('d-none');
-  }
+  await loadUserList({
+    url: '/users/likes-detail',
+    modalId: 'likesModal',
+    listId: 'likesList',
+    loadingId: 'likesLoading',
+    emptyId: 'likesEmpty',
+  });
 }
 
-// ===============================
-// LOAD MATCHES
-// ===============================
+/* ======================================================
+   LOAD MATCHES (Modal)
+====================================================== */
 async function loadMatches() {
-  const modalEl = document.getElementById('matchesModal');
-  const modal = new bootstrap.Modal(modalEl);
+  await loadUserList({
+    url: '/users/matches-detail',
+    modalId: 'matchesModal',
+    listId: 'matchesList',
+    loadingId: 'matchesLoading',
+    emptyId: 'matchesEmpty',
+    isMatch: true,
+  });
+}
 
-  const loading = document.getElementById('matchesLoading');
-  const empty = document.getElementById('matchesEmpty');
-  const list = document.getElementById('matchesList');
+/* ======================================================
+   GENERIC USER LIST LOADER (Reusable)
+====================================================== */
+async function loadUserList({
+  url,
+  modalId,
+  listId,
+  loadingId,
+  emptyId,
+  isMatch = false,
+}) {
+  const modal = new bootstrap.Modal(document.getElementById(modalId));
+  const list = document.getElementById(listId);
+  const loading = document.getElementById(loadingId);
+  const empty = document.getElementById(emptyId);
 
   list.innerHTML = '';
   empty.classList.add('d-none');
   loading.classList.remove('d-none');
-
   modal.show();
 
   try {
-    const res = await fetch('/users/matches-detail');
-    const result = await res.json();
+    const res = await fetch(url);
+    const { success, total, data } = await res.json();
 
     loading.classList.add('d-none');
+    if (!success || total === 0) return empty.classList.remove('d-none');
 
-    if (!result.success || result.total === 0) {
-      empty.classList.remove('d-none');
-      return;
-    }
-
-    result.data.forEach((user) => {
-      const col = document.createElement('div');
-      col.className = 'col-md-4';
-
-      const card = document.createElement('div');
-      card.className = 'card shadow-sm text-center p-3 h-100 border-warning';
-
-      const avatar = document.createElement('div');
-      avatar.className = 'mb-2 fs-1';
-      avatar.textContent =
-        user.gender === 'Male' ? '👨' : user.gender === 'Female' ? '👩' : '👤';
-
-      const name = document.createElement('h6');
-      name.className = 'fw-bold';
-      name.textContent = `${user.name}, ${user.age}`;
-
-      const bio = document.createElement('p');
-      bio.className = 'small text-muted';
-      bio.textContent = user.bio || 'No bio';
-
-      const badge = document.createElement('span');
-      badge.className = 'badge bg-warning text-dark mt-2';
-      badge.innerText = '💘 Match';
-
-      card.appendChild(avatar);
-      card.appendChild(name);
-      card.appendChild(bio);
-      card.appendChild(badge);
-
-      col.appendChild(card);
-      list.appendChild(col);
-    });
+    data.forEach((user) => list.appendChild(createUserCard(user, isMatch)));
   } catch (err) {
     console.error(err);
     loading.classList.add('d-none');
@@ -183,9 +132,47 @@ async function loadMatches() {
   }
 }
 
-// ===============================
-// MAKE FUNCTIONS GLOBAL (for onclick)
-// ===============================
+/* ======================================================
+   CREATE USER CARD (Reusable)
+====================================================== */
+function createUserCard(user, isMatch = false) {
+  const col = document.createElement('div');
+  col.className = 'col-md-4';
+
+  const card = document.createElement('div');
+  card.className = `card shadow-sm text-center p-3 h-100 ${
+    isMatch ? 'border-warning' : ''
+  }`;
+
+  const avatar = document.createElement('div');
+  avatar.className = 'mb-2 fs-1';
+  avatar.textContent =
+    user.gender === 'Male' ? '👨' : user.gender === 'Female' ? '👩' : '👤';
+
+  const name = document.createElement('h6');
+  name.className = 'fw-bold';
+  name.textContent = `${user.name}, ${user.age}`;
+
+  const bio = document.createElement('p');
+  bio.className = 'small text-muted';
+  bio.textContent = user.bio || 'No bio';
+
+  card.append(avatar, name, bio);
+
+  if (isMatch) {
+    const badge = document.createElement('span');
+    badge.className = 'badge bg-warning text-dark mt-2';
+    badge.textContent = '💘 Match';
+    card.appendChild(badge);
+  }
+
+  col.appendChild(card);
+  return col;
+}
+
+/* ======================================================
+   EXPORT TO GLOBAL (for onclick in EJS)
+====================================================== */
 window.toggleLike = toggleLike;
 window.loadLikes = loadLikes;
 window.loadMatches = loadMatches;
