@@ -8,9 +8,9 @@ HeartSync is a functional dating application prototype designed to demonstrate c
 
 The application follows the **MVC (Model-View-Controller)** design pattern to ensure clear separation of concerns:
 
-- **Models:** Managed via Mongoose to enforce data structure and validation (ProfileUser).
+- **Models:** Managed via Mongoose to enforce data structure and validation (ProfileUser, Availability).
 - **Views:** Server-side rendered (SSR) using EJS for fast performance and dynamic content delivery.
-- **Controller/Routes:** Decoupled into modular domains (`auth.js`, `admin.js`, `index.js`, `users.js`) for better maintainability.
+- **Controller/Routes:** Decoupled into modular domains (`auth.js`, `admin.js`, `index.js`,`users.js`) for better maintainability.
 - **Middleware:** Centralized handlers for session security, body parsing, and static asset serving.
 
 ---
@@ -48,19 +48,59 @@ To run this project locally, follow these steps:
 
 ## 🧠 Core Logic & Implementation Status
 
-### ✅ Completed: Part A & B
+### ✅ Completed: Part A & B & C
 
-1. **Matching Logic:** - Implemented a mutual interest algorithm where a "Match" is created only when both users like each other.
-   - **Formula:** $Like(A \rightarrow B) \cap Like(B \rightarrow A) \implies Match$.
-2. **Profile System:** Full CRUD for user profiles with secure authentication.
+The core functionalities of HeartSync have been fully implemented, including profile management, mutual matching, and automated scheduling.
 
-### ⏳ In Progress: Part C (Scheduling System)
+---
 
-I am currently finalizing the **Availability Coordination** feature:
+### 🔹 1. Mutual Matching Algorithm
 
-- **Current Development:** Building the intersection algorithm to compare `slots` arrays between two matched users.
-- **Logic:** Filtering by common `date` and calculating time interval overlaps: $[Start_A, End_A] \cap [Start_B, End_B]$.
-- **Refinement:** Optimizing the folder structure and clean code practices before final submission.
+Implemented a two-way interest system where a match is created only when both users like each other.
+
+**Matching Logic**
+Like(A → B) AND Like(B → A) ⇒ Match Created
+
+- Prevents unilateral matching
+- Ensures meaningful and mutual connections
+- Match validation handled entirely server-side
+
+---
+
+### 🔹 2. Profile Management System
+
+Built a secure and structured profile system with full CRUD functionality:
+
+- User registration & authentication
+- Password hashing using `bcrypt`
+- Session-based access control
+- Profile creation, update, and deletion
+- Clean MVC-based route organization
+
+---
+
+### 🔹 3. Availability Coordination & Scheduling System
+
+Implemented a scheduling feature that allows matched users to coordinate available time slots within the next **3 weeks**.
+
+**Scheduling Flow**
+
+1. Both users submit available time slots
+2. The backend validates and normalizes dates
+3. The system compares both `slots` arrays
+4. The first overlapping interval is automatically selected
+
+**Overlap Algorithm**
+
+For two intervals:
+[Start_A, End_A]
+[Start_B, End_B]
+An overlap exists when:
+max(Start_A, Start_B) < min(End_A, End_B)
+If overlap is found:
+✅ You have a date scheduled on: [Date & Time]
+If no overlap exists:
+No overlapping time found. Please select again.
 
 ---
 
@@ -68,17 +108,16 @@ I am currently finalizing the **Availability Coordination** feature:
 
 I am committed to delivering a high-quality, bug-free prototype. My plan for the final submission includes:
 
-1. **Complete Part C:** Finalize the date suggestion logic and UI.
-2. **Code Refactoring:** Reorganizing the directory structure for better scalability.
-3. **API Documentation:** Adding a list of endpoints for easier testing.
+**Code Refactoring:** Reorganizing the directory structure for better scalability.
+**API Documentation:** Adding a list of endpoints for easier testing.
 
 ---
 
 ## 💡 Proposed Features for Future Scale
 
-1. **AI Bio Assistant:** Use LLMs to help users write engaging bios.
-2. **Ice-Breaker Prompts:** Automated conversation starters for new matches.
-3. **Virtual Date Rooms:** Integrated secure video calling features.
+**AI Bio Assistant:** Use LLMs to help users write engaging bios.
+**Ice-Breaker Prompts:** Automated conversation starters for new matches.
+**Virtual Date Rooms:** Integrated secure video calling features.
 
 ---
 
