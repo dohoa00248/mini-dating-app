@@ -164,12 +164,116 @@ function createUserCard(user, isMatch = false) {
     badge.className = 'badge bg-warning text-dark mt-2';
     badge.textContent = '💘 Match';
     card.appendChild(badge);
+    slotBox = document.createElement('div');
+    slotBox.className = 'mt-3';
+
+    if (user.myProposedSlots && user.myProposedSlots.length > 0) {
+      const options = {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      };
+
+      let slotHTML = `
+        <div class="alert alert-info p-2 small text-start">
+          <strong>📅 Your Proposed Time:</strong><br>
+      `;
+
+      user.myProposedSlots.forEach((slot) => {
+        const start = new Date(slot.start);
+        const end = new Date(slot.end);
+
+        slotHTML += `
+          ${start.toLocaleString('en-US', options)}
+          <br>→ ${end.toLocaleString('en-US', options)}<br><br>
+        `;
+      });
+
+      slotHTML += `</div>`;
+      slotBox.innerHTML = slotHTML;
+    } else {
+      slotBox.innerHTML = `
+        <div class="text-muted small">
+          You haven’t proposed a time yet
+        </div>
+      `;
+    }
+
+    card.appendChild(slotBox);
   }
 
   col.appendChild(card);
   return col;
 }
+/* ======================================================
+   LOAD CONFIRMED SCHEDULES
+====================================================== */
+async function loadSchedules() {
+  const modal = new bootstrap.Modal(document.getElementById('scheduleModal'));
 
+  const list = document.getElementById('scheduleList');
+  const loading = document.getElementById('scheduleLoading');
+  const empty = document.getElementById('scheduleEmpty');
+
+  list.innerHTML = '';
+  empty.classList.add('d-none');
+  loading.classList.remove('d-none');
+
+  modal.show();
+
+  try {
+    const res = await fetch('/users/matched-schedules');
+    const { success, total, data } = await res.json();
+
+    loading.classList.add('d-none');
+
+    if (!success || total === 0) {
+      return empty.classList.remove('d-none');
+    }
+
+    data.forEach((user) => {
+      const col = document.createElement('div');
+      col.className = 'col-md-6';
+
+      const card = document.createElement('div');
+      card.className = 'card shadow-sm p-3 h-100';
+
+      const options = {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      };
+
+      const start = new Date(user.finalDate.start).toLocaleString(
+        'vi-VN',
+        options,
+      );
+
+      const end = new Date(user.finalDate.end).toLocaleString('vi-VN', options);
+
+      card.innerHTML = `
+        <h6 class="fw-bold">${user.name}, ${user.age}</h6>
+        <p class="small text-muted">${user.bio || ''}</p>
+        <div class="alert alert-success small">
+          <strong>📅 Confirmed Date:</strong><br>
+          ${start}<br>
+          → ${end}
+        </div>
+      `;
+
+      col.appendChild(card);
+      list.appendChild(col);
+    });
+  } catch (err) {
+    console.error(err);
+    loading.classList.add('d-none');
+    empty.classList.remove('d-none');
+  }
+}
 /* ======================================================
    EXPORT TO GLOBAL (for onclick in EJS)
 ====================================================== */
