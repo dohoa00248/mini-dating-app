@@ -74,7 +74,7 @@ function showMatchPopup() {
 ====================================================== */
 async function loadLikes() {
   await loadUserList({
-    url: '/users/likes-detail',
+    url: '/users/likes',
     modalId: 'likesModal',
     listId: 'likesList',
     loadingId: 'likesLoading',
@@ -87,7 +87,7 @@ async function loadLikes() {
 ====================================================== */
 async function loadMatches() {
   await loadUserList({
-    url: '/users/matches-detail',
+    url: '/users/matches',
     modalId: 'matchesModal',
     listId: 'matchesList',
     loadingId: 'matchesLoading',
@@ -224,7 +224,7 @@ async function loadSchedules() {
   modal.show();
 
   try {
-    const res = await fetch('/users/matched-schedules');
+    const res = await fetch('/users/schedules');
     const { success, total, data } = await res.json();
 
     loading.classList.add('d-none');

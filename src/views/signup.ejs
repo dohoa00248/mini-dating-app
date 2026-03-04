@@ -92,7 +92,7 @@
       <div class="text-center mt-3">
         <span class="text-muted">Already have an account?</span>
         <a
-          href="/auth/signin"
+          href="/auth/login"
           class="fw-bold text-decoration-none"
           style="color: #ff4e8d"
         >
@@ -100,44 +100,7 @@
         </a>
       </div>
     </div>
-
-    <script>
-      document
-        .getElementById('signupForm')
-        .addEventListener('submit', async (e) => {
-          e.preventDefault();
-
-          const data = {
-            name: document.getElementById('name').value,
-            age: document.getElementById('age').value,
-            gender: document.getElementById('gender').value,
-            bio: document.getElementById('bio').value,
-            email: document.getElementById('email').value,
-            password: document.getElementById('password').value,
-          };
-
-          const errorDiv = document.getElementById('errorMessage');
-
-          try {
-            const response = await fetch('/auth/signup', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(data),
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-              window.location.href = '/auth/signin';
-            } else {
-              errorDiv.textContent = result.message;
-              errorDiv.style.display = 'block';
-            }
-          } catch (err) {
-            errorDiv.textContent = 'Something went wrong';
-            errorDiv.style.display = 'block';
-          }
-        });
-    </script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/signup.js"></script>
   </body>
 </html>

@@ -14,14 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.disabled = true;
 
       try {
-        const response = await fetch('/admin/register', {
+        const response = await fetch('/admin/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
         });
 
         const result = await response.json();
-
+        console.log(result);
         if (result.success) {
           location.reload();
         } else {
