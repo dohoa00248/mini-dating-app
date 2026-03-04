@@ -31,10 +31,17 @@
           💘 View My Matches
         </button>
         <button 
-  class="btn btn-info btn-sm"
-  onclick="loadSchedules()">
-  📅 View My Schedules
-</button>
+          class="btn btn-info btn-sm"
+          onclick="loadSchedules()">
+          📅 View My Schedules
+        </button>
+        <!-- LOGOUT BUTTON -->
+      <form action="/auth/logout" method="POST" class="d-inline">
+        <button type="submit" class="btn btn-danger btn-sm">
+        Logout
+        </button>
+      </form>
+
       </div>
     </div>
   </nav>

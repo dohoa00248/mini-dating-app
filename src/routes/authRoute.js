@@ -70,6 +70,28 @@ router.post('/signin', async (req, res) => {
   }
 });
 
+router.post('/logout', async (req, res) => {
+  try {
+    await new Promise((resolve, reject) => {
+      req.session.destroy((err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+    res.clearCookie('connect.sid');
+
+    return res.redirect('/auth/signin');
+  } catch (error) {
+    console.error('Logout error:', error);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Logout failed',
+    });
+  }
+});
+
 router.post('/signup', async (req, res) => {
   try {
     const { name, age, gender, bio, email, password, role } = req.body;
