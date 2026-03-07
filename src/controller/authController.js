@@ -168,6 +168,17 @@ const resetPasswordUser = async (req, res) => {
   }
 };
 
+const authLogin = (req, res, next) => {
+  if (!req.session.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized',
+    });
+  }
+
+  next();
+};
+
 export default {
   getLoginPage,
   getRegisterPage,
@@ -175,4 +186,5 @@ export default {
   logoutUser,
   registerUser,
   resetPasswordUser,
+  authLogin,
 };

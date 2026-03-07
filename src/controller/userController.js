@@ -30,14 +30,6 @@ const getUserDashboard = async (req, res) => {
 
 const getLikedUsers = async (req, res) => {
   try {
-    // Check authentication
-    if (!req.session.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Unauthorized',
-      });
-    }
-
     const currentUserId = req.session.user._id;
 
     // Get current user
@@ -53,7 +45,6 @@ const getLikedUsers = async (req, res) => {
       });
     }
 
-    // Return liked users
     res.status(200).json({
       success: true,
       message: 'Likes fetched successfully!',
@@ -61,10 +52,11 @@ const getLikedUsers = async (req, res) => {
       data: currentUser.likes,
     });
   } catch (error) {
-    res.status(500).json({
+    console.error('error:', error);
+
+    return res.status(500).json({
       success: false,
       message: 'Internal Server Error',
-      error: error.message,
     });
   }
 };
@@ -72,13 +64,6 @@ const getLikedUsers = async (req, res) => {
 const getMatchedUsers = async (req, res) => {
   try {
     const userId = req.session.user._id;
-
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: 'Unauthorized',
-      });
-    }
 
     const currentUser = await ProfileUser.findById(userId);
 
@@ -127,25 +112,18 @@ const getMatchedUsers = async (req, res) => {
       data: result,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
+    console.error('error:', error);
+
+    return res.status(500).json({
       success: false,
       message: 'Internal Server Error',
-      error: error.message,
     });
   }
 };
 
 const getScheduledUsers = async (req, res) => {
   try {
-    const currentUserId = req.session.user?._id;
-
-    if (!currentUserId) {
-      return res.status(401).json({
-        success: false,
-        message: 'Unauthorized',
-      });
-    }
+    const currentUserId = req.session.user._id;
 
     const availabilities = await Availability.find({
       $or: [{ userA: currentUserId }, { userB: currentUserId }],
@@ -175,7 +153,8 @@ const getScheduledUsers = async (req, res) => {
       data: result,
     });
   } catch (error) {
-    console.error(error);
+    console.error('error:', error);
+
     return res.status(500).json({
       success: false,
       message: 'Internal Server Error',
@@ -214,7 +193,7 @@ const toggleLikeUser = async (req, res) => {
     const hasLiked = me.likes.includes(targetId);
 
     if (hasLiked) {
-      // 🔥 UNLIKE
+      // UNLIKE
       await ProfileUser.findByIdAndUpdate(myId, {
         $pull: { likes: targetId, matches: targetId },
       });
@@ -229,7 +208,7 @@ const toggleLikeUser = async (req, res) => {
         action: 'unliked',
       });
     } else {
-      // 🔥 LIKE
+      // LIKE
       await ProfileUser.findByIdAndUpdate(myId, {
         $addToSet: { likes: targetId },
       });
@@ -256,8 +235,9 @@ const toggleLikeUser = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
+    console.error('error:', error);
+
+    return res.status(500).json({
       success: false,
       message: 'Internal Server Error',
     });
@@ -266,14 +246,6 @@ const toggleLikeUser = async (req, res) => {
 
 const getSchedulePage = async (req, res) => {
   try {
-    // Check authentication
-    if (!req.session.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Unauthorized',
-      });
-    }
-
     const currentUserId = req.session.user._id.toString();
     const { matchedUserId } = req.params;
 
@@ -311,22 +283,17 @@ const getSchedulePage = async (req, res) => {
       currentUserId,
     });
   } catch (error) {
-    return res.status(500).render('error', {
-      message: error.message,
+    console.error('error:', error);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Internal Server Error',
     });
   }
 };
 
 const proposeAvailability = async (req, res) => {
   try {
-    //  Check authentication
-    if (!req.session.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Unauthorized access.',
-      });
-    }
-
     const userId = req.session.user._id.toString();
     const { matchedUserId } = req.params;
     const { slots } = req.body;
@@ -434,9 +401,11 @@ const proposeAvailability = async (req, res) => {
       message: 'No overlapping time found. Please select again.',
     });
   } catch (error) {
-    return res.status(400).json({
+    console.error('error:', error);
+
+    return res.status(500).json({
       success: false,
-      message: error.message,
+      message: 'Internal Server Error',
     });
   }
 };
